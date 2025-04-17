@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Bug Explainer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Intelligent Bug Explainer & Fixer</h1>
+    <p>Paste your Java stack trace and code snippet below:</p>
+    <textarea id="stacktrace" placeholder="Paste stack trace here..."></textarea>
+    <textarea id="codeSnippet" placeholder="Paste related code snippet here..."></textarea>
+    <button onclick="submitBugReport()">Analyze</button>
+
+    <div id="output" class="output" style="display: none;">
+        <h3>Analysis Result:</h3>
+        <p id="rootCause"></p>
+        <p id="fixSuggestion"></p>
+    </div>
+
+    <script>
+        async function submitBugReport() {
+            const stacktrace = document.getElementById("stacktrace").value;
+            const codeSnippet = document.getElementById("codeSnippet").value;
+
+            if (!stacktrace || !codeSnippet) {
+                alert("Please provide both stack trace and code snippet.");
+                return;
+            }
+
+            const response = await fetch("http://localhost:8080/api/analyze", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ stacktrace, codeSnippet })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                document.getElementById("output").style.display = "block";
+                document.getElementById("rootCause").innerText = "Root Cause: " + result.rootCause;
+                document.getElementById("fixSuggestion").innerText = "Fix Suggestion: " + result.fixSuggestion;
+            } else {
+                alert("Error analyzing the bug report.");
+            }
+        }
+    </script>
+</body>
+</html>
